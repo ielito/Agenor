@@ -39,5 +39,5 @@
             string response = await appService.GetChatGptResponseForOrderDetails(userQuestion);
             Console.WriteLine(response);
         }
-    }
+    } 
 }

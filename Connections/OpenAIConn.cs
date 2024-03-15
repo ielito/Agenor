@@ -5,10 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-public class ChatGptClient : IDisposable
+public class ChatGptClient
 {
     private readonly HttpClient _httpClient;
-    private readonly string _apiUrl;
+    private readonly string _apiUrl = "https://api.openai.com.com/v1/chat/completions";
+
+    // Construtor público e sem parametros - prereq da OutSystems
+    public ChatGptClient()
+    {
+        _httpClient = new HttpClient();
+    }
 
     public ChatGptClient(string? apiKey)
     {
@@ -69,8 +75,12 @@ public class ChatGptClient : IDisposable
         throw new Exception("Número máximo de tentativas atingido");
     }
 
-    public void Dispose()
+    // Metodo sync para compatibilizar com a OS
+    public string GetResponse(string message, int maxAttempts = 3)
     {
-        _httpClient?.Dispose();
+        var task = GetResponseAsync(message, maxAttempts);
+        return task.GetAwaiter().GetResult();
     }
+
+    
 }

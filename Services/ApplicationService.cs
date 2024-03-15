@@ -27,6 +27,33 @@ public class ApplicationService
         return await _chatGptService.GetResponseAsync(prompt);
     }
 
+    //Refactor para Sync do GetChatGptResponseForOrderDetails
+    public string GetChatGptResponseForOrderDetailsSync(string userQuestion)
+    {
+        string orderNumber = ExtractOrderNumber(userQuestion);
+
+        if (string.IsNullOrEmpty(orderNumber) && !string.IsNullOrEmpty(_lastOrderNumber))
+        {
+            orderNumber = _lastOrderNumber;
+        }
+        else
+        {
+            _lastOrderNumber = orderNumber;
+        }
+
+        var mongoOrder = _mongoDbService.GetOrderDetails(orderNumber);
+
+        if (mongoOrder == null)
+        {
+            return "Pedido não encontrado.";
+        }
+
+        var task = GetChatGptResponseForOrderDetails(userQuestion);
+        task.Wait();
+        return task.Result;
+
+    }
+
     public async Task<string> GetChatGptResponseForOrderDetails(string userQuestion)
     {
         string orderNumber = ExtractOrderNumber(userQuestion);

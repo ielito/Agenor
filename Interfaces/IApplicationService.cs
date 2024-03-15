@@ -7,4 +7,5 @@ public interface IApplicationService
     Task<string> GetChatGptResponse(string prompt);
     Task<string> GetChatGptResponseForOrderDetails(string userQuestion);
     Task TestConnectionAsync();
+    //void TestDatabaseConnection();
 }

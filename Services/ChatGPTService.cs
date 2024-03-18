@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Threading.Tasks;
+using Serilog;
 
 public class ChatGptService
 {
@@ -76,6 +77,23 @@ public class ChatGptService
     internal Task<string> GetResponseAsync(string prompt)
     {
         throw new NotImplementedException();
+    }
+
+    // Tornando o GetChatGptResponse Sync
+    public string GetChatGptResponseSync(string prompt)
+    {
+        try
+        {
+            var response = _chatGptClient.GetResponseAsync(prompt).GetAwaiter().GetResult();
+            Log.Information($"Recebido pelo prompt: {prompt}");
+            return response;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Erro ao obter resposta do ChatGPT");
+            throw;
+        }
+        
     }
 
     public async Task<string> GetChatGptResponse(string prompt)

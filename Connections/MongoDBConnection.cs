@@ -6,15 +6,18 @@ using System;
 
 public class MongoDBConnection
 {
-    private readonly MongoClient _client;
+    private readonly MongoClient? _client;
     private readonly string _databaseName = "ielitoLab";
 
-    public MongoDBConnection()
-    {
-    }
-
+    // Construtor sem parametros
+    public MongoDBConnection() {}
+    
     public MongoDBConnection(string connectionString)
     {
+
+        if (string.IsNullOrWhiteSpace(connectionString))
+            throw new ArgumentException("A string de conexão é necessária.", nameof(connectionString));
+
         var settings = MongoClientSettings.FromConnectionString(connectionString);
         settings.ServerApi = new ServerApi(ServerApiVersion.V1);
         _client = new MongoClient(settings);
@@ -24,35 +27,47 @@ public class MongoDBConnection
     {
         try
         {
-            var result = _client.GetDatabase("ielitoLab").RunCommand<BsonDocument>(new BsonDocument("ping", 1));
-            Console.WriteLine("Pinged your deployment. You successfully connected to MongoDB!");
+            if (_client != null)
+            {
+                var result = _client.GetDatabase(_databaseName).RunCommand<BsonDocument>(new BsonDocument("ping", 1));
+                Console.WriteLine("Conexão com o MongoDB bem-sucedida.");
+                Log.Information("Sucesso na conexão com o MongoDB");
+            }
+            else
+            {
+                Log.Warning("O cliente MongoDB não foi inicializado.");
+            }
         }
         catch (MongoException mongoEx)
         {
-            Console.WriteLine($"Erro de MongoDB: {mongoEx.Message}");
-            // Adicione aqui o log
+            Log.Error($"Erro ao conectar no MongoDB: {mongoEx.Message}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Erro geral: {ex.Message}");
-            // Adicione aqui o log
+            Log.Error($"Erro ao testar conexão com o MongoDB: {ex.Message}");
         }
     }
 
     public async Task TestConnectionAsync()
     {
+        if (_client == null)
+        {
+            Log.Warning("O cliente MongoDB não foi inicializado para teste assíncrono.");
+            return;
+        }
+
         try
         {
             var result = await _client.GetDatabase(_databaseName).RunCommandAsync<BsonDocument>(new BsonDocument("ping", 1));
-            Log.Information("Pinged your deployment. You successfully connected to MOngoDB!");
+            Log.Information("Conexão assíncrona com o MongoDB bem-sucedida.");
         }
         catch (MongoException mongoEx)
         {
-            Log.Error(mongoEx, "MongoDB error");
+            Log.Error($"Erro MongoDB: {mongoEx.Message}");
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "Generic Error - I know, but it is what it is");
+            Log.Error($"Erro ao testar conexão assíncrona com o MongoDB: {ex.Message}");
         }
     }
 }

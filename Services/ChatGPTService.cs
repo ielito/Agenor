@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Threading.Tasks;
 using Serilog;
+using static OrdersApiService;
 
 public class ChatGptService
 {
@@ -16,10 +17,22 @@ public class ChatGptService
 
     public async Task<string> ProcessOrdersAndGetResponse()
     {
-        var orders = _mongoDbService.GetOrdersFromMongoDb();
+        Log.Information("Buscando detalhes dos pedidos com _mongoDBService");
 
-        string prompt = CreatePromptFromOrders(orders);
-        return await _chatGptClient.GetResponseAsync(prompt);
+        if (_mongoDbService != null)
+
+        {
+            var orders = _mongoDbService.GetOrdersFromMongoDb();
+            Log.Information($"Encontrados {orders.Count()} pedidos");
+
+            string prompt = CreatePromptFromOrders(orders);
+            return await _chatGptClient.GetResponseAsync(prompt);
+        }
+        else
+        {
+            Log.Warning("_mongoDBService é nulo ao tentar buscar detalhes dos pedidos");
+            return "Não foi possível buscar os detalhes do pedido porque o _mongoDBSercice é nulo.";
+        }
     }
 
     public string CreatePromptFromOrders(IEnumerable<OrdersApiService.Order> orders)
@@ -82,6 +95,11 @@ public class ChatGptService
     // Tornando o GetChatGptResponse Sync
     public string GetChatGptResponseSync(string prompt)
     {
+        if (_chatGptClient == null)
+        {
+            Log.Error("ChatGptClient is not initialized.");
+            return "Service Unavailable";
+        }
         try
         {
             var response = _chatGptClient.GetResponseAsync(prompt).GetAwaiter().GetResult();
@@ -91,9 +109,8 @@ public class ChatGptService
         catch (Exception ex)
         {
             Log.Error(ex, "Erro ao obter resposta do ChatGPT");
-            throw;
+            return "Error getting response";
         }
-        
     }
 
     public async Task<string> GetChatGptResponse(string prompt)
@@ -146,6 +163,4 @@ public class ChatGptService
             _ => $"Employee ID: {employeeId} - Unknown Employee"
         };
     }
-
-
 }

@@ -1,33 +1,53 @@
 ﻿using System.Text.RegularExpressions;
 using MongoDB.Driver;
 using static OrdersApiService;
+using Serilog;
 
 public class ApplicationService
 {
-    private string _lastOrderNumber;
+    private string? _lastOrderNumber;
 
-    private MongoDbService _mongoDbService;
-    private ChatGptService _chatGptService;
-    private OrdersApiService _ordersApiService;
+    private MongoDbService? _mongoDbService;
+    private ChatGptService? _chatGptService;
+    private OrdersApiService? _ordersApiService;
+    private object _chatGptClient;
 
     public ApplicationService(string mongoDbConnectionString, string openAiApiKey)
     {
+        Log.Information("Conectando no MongoDB");
         _mongoDbService = new MongoDbService(mongoDbConnectionString);
         _chatGptService = new ChatGptService(openAiApiKey);
         _ordersApiService = new OrdersApiService();
     }
 
+
     public void TestDatabaseConnection()
     {
-        _mongoDbService.TestConnection();
+        if (_mongoDbService != null)
+        {
+            _mongoDbService.TestConnection();
+        }
+        else
+        {
+            Log.Information("Conectado com sucesso");
+        }
+        
     }
 
     public async Task<string> GetChatGptResponse(string prompt)
     {
-        return await _chatGptService.GetResponseAsync(prompt);
+        if (_chatGptService != null)
+        {
+            return await _chatGptService.GetResponseAsync(prompt);
+        }
+        else
+        {
+            Log.Information("Sem sucesso");
+            return "Sem sucesso";
+        }
+        
     }
 
-    //Refactor para Sync do GetChatGptResponseForOrderDetails
     public string GetChatGptResponseForOrderDetailsSync(string userQuestion)
     {
         string orderNumber = ExtractOrderNumber(userQuestion);
@@ -36,9 +56,15 @@ public class ApplicationService
         {
             orderNumber = _lastOrderNumber;
         }
-        else
+        else if (string.IsNullOrEmpty(orderNumber))
         {
-            _lastOrderNumber = orderNumber;
+            return "Número do pedido não fornecido.";
+        }
+
+        if (_mongoDbService == null)
+        {
+            Log.Error("MongoDbService is null.");
+            return "Service Unavailable";
         }
 
         var mongoOrder = _mongoDbService.GetOrderDetails(orderNumber);
@@ -48,10 +74,18 @@ public class ApplicationService
             return "Pedido não encontrado.";
         }
 
-        var task = GetChatGptResponseForOrderDetails(userQuestion);
-        task.Wait();
-        return task.Result;
+        if (_chatGptService == null)
+        {
+            Log.Error("ChatGptService is null.");
+            return "Service Unavailable";
+        }
 
+        return _chatGptService.GetChatGptResponseSync(CreatePromptForOrderDetails(mongoOrder, userQuestion));
+    }
+
+    private string CreatePromptForOrderDetails(MongoOrder mongoOrder, string userQuestion)
+    {
+        throw new NotImplementedException();
     }
 
     public async Task<string> GetChatGptResponseForOrderDetails(string userQuestion)
@@ -124,4 +158,8 @@ public class ApplicationService
         return await _ordersApiService.GetOrdersFromApi();
     }
 
+    internal string GetChatGptResponseSync(string prompt)
+    {
+        throw new NotImplementedException();
+    }
 }

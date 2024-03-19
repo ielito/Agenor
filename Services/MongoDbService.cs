@@ -2,6 +2,7 @@
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using static OrdersApiService;
+using Serilog;
 
 public class MongoDbService
 {
@@ -25,7 +26,6 @@ public class MongoDbService
             cm.SetIgnoreExtraElements(true); // Ignora campos extras como '_id'
         });
 
-        _client = new MongoClient(connectionString);
     }
 
     public void InsertOrdersIntoMongoDb(IEnumerable<OrdersApiService.Order> orders)
@@ -55,10 +55,12 @@ public class MongoDbService
         if (order != null)
         {
             Console.WriteLine($"Pedido encontrado: {order.OrderNumber}");
+            Log.Information($"Pedido Encontrado:{order.OrderNumber}");
         }
         else
         {
             Console.WriteLine("Pedido não encontrado.");
+            Log.Information($"Pedido não encontrado.");
         }
 
         return order;
@@ -72,10 +74,12 @@ public class MongoDbService
             var command = new BsonDocument { { "ping", 1 } };
             var result = database.RunCommand<BsonDocument>(command);
             Console.WriteLine("Conexão com o MongoDB: Sucesso.");
+            Log.Information("Conexão com o MongoDB realizado com sucesso");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Erro ao conectar com o MongoDB: {ex.Message}");
+            Log.Information($"Erro ao conectar com o MongoDB: {ex.Message}");
         }
     }
 

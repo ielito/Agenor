@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Serilog;
 
 public class ChatGptClient
 {
@@ -75,12 +76,19 @@ public class ChatGptClient
         throw new Exception("Número máximo de tentativas atingido");
     }
 
-    // Metodo sync para compatibilizar com a OS
-    public string GetResponse(string message, int maxAttempts = 3)
+    public string GetResponseSync(string message, int maxAttempts = 3)
     {
-        var task = GetResponseAsync(message, maxAttempts);
-        return task.GetAwaiter().GetResult();
+        try
+        {
+            var task = GetResponseAsync(message, maxAttempts);
+            task.Wait();
+            return task.Result;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Falha ao obter resposta sincronamente.");
+            return "Erro ao obter resposta.";
+        }
     }
 
-    
 }

@@ -7,7 +7,10 @@
     {
         _appService = new ApplicationService(mongoDbConnectionString, openAiApiKey);
         _mongoDbConnection = new MongoDBConnection();
+    }
 
+    public ApplicationServiceImplementation()
+    {
     }
 
     public async Task<string> GetChatGptResponse(string prompt)
@@ -24,4 +27,23 @@
     {
         await _mongoDbConnection.TestConnectionAsync();
     }
+
+    // Sync para a OutSystems reconhecer
+
+    public string GetChatGptResponseSync(string prompt)
+    {
+        return _appService.GetChatGptResponseSync(prompt);
+    }
+
+    public string GetChatGptResponseForOrderDetailsSync(string userQuestion)
+    {
+        return _appService.GetChatGptResponseForOrderDetailsSync(userQuestion);
+    }
+
+    public void TestConnection()
+    {
+        _mongoDbConnection.TestConnection();
+    }
+
+
 }

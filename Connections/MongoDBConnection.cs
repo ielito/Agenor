@@ -21,6 +21,8 @@ public class MongoDBConnection
         var settings = MongoClientSettings.FromConnectionString(connectionString);
         settings.ServerApi = new ServerApi(ServerApiVersion.V1);
         _client = new MongoClient(settings);
+        _client = new MongoClient(connectionString);
+
     }
 
     public void TestConnection()

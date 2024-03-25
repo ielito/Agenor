@@ -6,4 +6,6 @@ public interface IApplicationService
     string GetChatGptResponseSync(string prompt);
     string GetChatGptResponseForOrderDetailsSync(string userQuestion);
     void TestConnection();
+    string ApplicationServiceImplementation();
+    string getInfo();
 }

@@ -46,5 +46,13 @@ public class ApplicationServiceImplementation : IApplicationService
         _mongoDbConnection.TestConnection();
     }
 
+    string IApplicationService.ApplicationServiceImplementation()
+    {
+        throw new NotImplementedException();
+    }
 
+    public string getInfo()
+    {
+        throw new NotImplementedException();
+    }
 }

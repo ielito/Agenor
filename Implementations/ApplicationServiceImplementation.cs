@@ -1,17 +1,18 @@
-﻿public class ApplicationServiceImplementation : IApplicationService
+﻿using AgenorAI.Interfaces;
+
+public class ApplicationServiceImplementation : IApplicationService
 {
     private readonly ApplicationService _appService;
     private readonly MongoDBConnection _mongoDbConnection;
 
-    public ApplicationServiceImplementation(string mongoDbConnectionString, string openAiApiKey)
+    public ApplicationServiceImplementation(getInfo config)
     {
-        _appService = new ApplicationService(mongoDbConnectionString, openAiApiKey);
-        _mongoDbConnection = new MongoDBConnection();
+        // Utilize as propriedades de config para inicializar _appService e _mongoDbConnection
+        _appService = new ApplicationService(config.MongoDbConnectionString, config.OpenAiApiKey);
+        _mongoDbConnection = new MongoDBConnection(config.MongoDbConnectionString);
     }
 
-    public ApplicationServiceImplementation()
-    {
-    }
+    public ApplicationServiceImplementation() { }
 
     public async Task<string> GetChatGptResponse(string prompt)
     {

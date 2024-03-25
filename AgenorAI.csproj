@@ -20,11 +20,23 @@
     <None Remove="Services\" />
     <None Remove="Interfaces\" />
     <None Remove="Implementations\" />
+    <None Remove="resources\" />
+    <None Remove="resources\qAgenorTransp.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Connections\" />
     <Folder Include="Services\" />
     <Folder Include="Interfaces\" />
     <Folder Include="Implementations\" />
+    <Folder Include="resources\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Interfaces\IApplicationService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Interfaces\IApplicationService.cs" />
+    <EmbeddedResource Include="resources\qAgenorTransp.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

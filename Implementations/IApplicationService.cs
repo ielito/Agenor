@@ -1,6 +1,6 @@
 ﻿using OutSystems.ExternalLibraries.SDK;
 
-[OSInterface (Description = "Agenor", IconResourceName = "AgenorAI.resources.qAgenorTransp.png", Name = "AgenorAI")]
+[OSInterface(Description = "Agenor", IconResourceName = "AgenorAI.resources.qAgenorTransp.png", Name = "AgenorAI")]
 public interface IApplicationService
 {
     string GetChatGptResponseSync(string prompt);

@@ -2,6 +2,8 @@
 using MongoDB.Driver;
 using static OrdersApiService;
 using Serilog;
+using AgenorAI.Interfaces;
+using static AgenorAI.Interfaces.getInfo;
 
 public class ApplicationService
 {
